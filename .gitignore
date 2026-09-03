@@ -1,0 +1,34 @@
+.venv/
+__pycache__/
+*.pyc
+.cache/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Modelos, checkpoints e resultados gerados
+*.checkpoint.jsonl
+*.parcial
+*.tmp
+*.txt
+!requirements.txt
+!requirements-dev.txt
+*.srt
+*.vtt
+
+# Audios e videos podem ser grandes ou privados
+*.aac
+*.flac
+*.m4a
+*.mp3
+*.mp4
+*.ogg
+*.opus
+*.wav
+*.webm
+
+# Arquivos locais de ferramentas
+*.ses
+.DS_Store
