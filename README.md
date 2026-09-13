@@ -48,6 +48,33 @@ python -m pip install -e ".[dev]"
 
 ## Uso rápido
 
+### Interface gráfica
+
+Instale o extra da interface e abra a janela:
+
+```bash
+python -m pip install -e ".[gui]"
+transcreve-gui
+```
+
+No Windows, após a instalação, também é possível abrir a interface com dois
+cliques em [`iniciar-transcreve.cmd`](iniciar-transcreve.cmd). Esse iniciador usa
+o ambiente `.venv` da pasta do projeto; para levar o aplicativo a outro
+computador, é preciso instalar Python e as dependências nesse computador.
+
+Selecione ou arraste arquivos, escolha formato, perfil e, opcionalmente, uma
+pasta de saída. A barra mostra o progresso estimado do arquivo atual; o log
+mostra os blocos concluídos e os retomados de checkpoints. Sem pasta de saída,
+cada resultado é gravado ao lado do arquivo de origem. Tudo é processado
+localmente, exceto o download inicial do modelo.
+Para renomear a transcrição, selecione o arquivo na lista e edite **Nome da
+transcrição** antes de iniciar. A extensão é adicionada conforme o formato
+escolhido; o áudio ou vídeo original não é renomeado.
+Após concluir, selecione um resultado na área de atividade para abrir o arquivo
+ou sua pasta.
+
+### Linha de comando
+
 ```bash
 transcreve audio.m4a
 ```
@@ -130,6 +157,15 @@ segments = Transcriber(config).transcribe(
     format_name="json",
 )
 ```
+
+Para uma barra de progresso ou log visual, passe `progress=callback` a
+`transcribe`. O callback recebe um `ProgressEvent` com `phase` (`started`,
+`completed` ou `finished`), `chunk_index`, `completed_chunks`, `total_chunks`,
+`skipped` e os tempos do bloco em segundos. `total_chunks` é uma estimativa
+baseada na duração informada pelo arquivo e pode ser `None`; no evento
+`finished`, ele é o total efetivo. O evento `completed` só é emitido depois
+que o bloco foi transcrito ou retomado do checkpoint. A interface deve
+encaminhar esses eventos à thread principal antes de atualizar seus componentes.
 
 Os módulos têm responsabilidades independentes:
 

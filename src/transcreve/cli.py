@@ -96,10 +96,15 @@ def main(argv: list[str] | None = None) -> int:
     os.environ.setdefault("MALLOC_ARENA_MAX", "2")
     transcriber = Transcriber(config)
 
-    def progress(chunk, skipped: bool) -> None:
-        action = "Retomando" if skipped else "Transcrevendo"
-        end = chunk.start + chunk.duration
-        print(f"{action} bloco {chunk.index + 1}: {chunk.start:.1f}s–{end:.1f}s", file=sys.stderr)
+    def progress(event) -> None:
+        if event.phase == "started":
+            action = "Retomando" if event.skipped else "Transcrevendo"
+            total = f"/{event.total_chunks} (estimado)" if event.total_chunks else ""
+            print(
+                f"{action} bloco {event.chunk_index + 1}{total}: "
+                f"{event.start_seconds:.1f}s–{event.end_seconds:.1f}s",
+                file=sys.stderr,
+            )
 
     try:
         for source in args.audio:
