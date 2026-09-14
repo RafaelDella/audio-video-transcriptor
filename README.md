@@ -1,6 +1,6 @@
 # Transcreve Local
 
-CLI e biblioteca Python para transcrever áudio localmente com
+Interface gráfica, CLI e biblioteca Python para transcrever áudio localmente com
 [Faster-Whisper](https://github.com/SYSTRAN/faster-whisper). Foi projetada para
 arquivos longos e computadores com pouca memória: o áudio é decodificado em
 blocos pequenos e nenhum conteúdo é enviado para serviços externos.
@@ -23,9 +23,18 @@ blocos pequenos e nenhum conteúdo é enviado para serviços externos.
 - Python 3.10 ou superior;
 - aproximadamente 1 GB de espaço para o ambiente, além do modelo escolhido;
 - FFmpeg do sistema não é obrigatório: a leitura é feita pelo PyAV.
+- Para links do YouTube, instale Node.js 22 ou superior; o aplicativo o detecta
+  automaticamente para a extração com `yt-dlp`.
 
 O modelo é baixado na primeira utilização. Modelos maiores são mais precisos,
 porém consomem mais memória e levam mais tempo.
+Na interface, o estado do modelo aparece ao escolher um perfil. Use **Preparar
+modelo** enquanto houver internet para guardar os arquivos no cache local. O
+modo **Usar somente arquivos locais e modelo salvo** exige que o modelo esteja
+completo no cache e impede downloads durante a transcrição. Links de YouTube,
+Vimeo e outros sites continuam dependendo da internet para obter a mídia.
+Mesmo com o modelo salvo, carregá-lo na memória e processar o áudio levam tempo;
+o preparo antecipado elimina apenas o download inicial.
 
 ## Instalação
 
@@ -50,7 +59,8 @@ python -m pip install -e ".[dev]"
 
 ### Interface gráfica
 
-Instale o extra da interface e abra a janela:
+Instale o extra da interface e abra a janela. A interface usa HTML, CSS e
+JavaScript locais em uma janela Qt; o processamento continua em Python:
 
 ```bash
 python -m pip install -e ".[gui]"
@@ -58,15 +68,22 @@ transcreve-gui
 ```
 
 No Windows, após a instalação, também é possível abrir a interface com dois
-cliques em [`iniciar-transcreve.cmd`](iniciar-transcreve.cmd). Esse iniciador usa
+cliques em [`iniciar-programa.cmd`](iniciar-programa.cmd). Esse iniciador usa
 o ambiente `.venv` da pasta do projeto; para levar o aplicativo a outro
 computador, é preciso instalar Python e as dependências nesse computador.
 
-Selecione ou arraste arquivos, escolha formato, perfil e, opcionalmente, uma
-pasta de saída. A barra mostra o progresso estimado do arquivo atual; o log
+Selecione ou arraste arquivos, ou adicione um link de mídia para o qual você tem
+permissão de download. Links do YouTube, Vimeo e outros sites compatíveis são
+obtidos com `yt-dlp` quando a transcrição começa; a mídia temporária é removida
+depois. Para links, escolha uma pasta de destino. Depois escolha formato e perfil.
+A barra mostra o download e o progresso estimado do arquivo atual; o log
 mostra os blocos concluídos e os retomados de checkpoints. Sem pasta de saída,
-cada resultado é gravado ao lado do arquivo de origem. Tudo é processado
-localmente, exceto o download inicial do modelo.
+cada resultado de um arquivo local é gravado ao lado da origem. A transcrição
+acontece no computador; links e o primeiro uso de um modelo exigem internet.
+Durante a execução, **Cancelar transcrição** interrompe a fonte atual e as
+demais fontes da fila. Se um bloco ou o carregamento do modelo estiver em curso,
+o cancelamento termina assim que essa operação permitir a interrupção. Arquivos
+já concluídos permanecem disponíveis.
 Para renomear a transcrição, selecione o arquivo na lista e edite **Nome da
 transcrição** antes de iniciar. A extensão é adicionada conforme o formato
 escolhido; o áudio ou vídeo original não é renomeado.
@@ -174,13 +191,17 @@ Os módulos têm responsabilidades independentes:
 - `engine`: modelo e orquestração;
 - `checkpoint`: persistência e retomada;
 - `output`: TXT, SRT, VTT e JSON;
-- `cli`: interface de terminal.
+- `cli`: interface de terminal;
+- `model_store`: verificação e preparo do cache de modelos;
+- `remote`: validação e download temporário de links de mídia;
+- `web_gui` e `web`: interface gráfica e seus arquivos locais.
 
 ## Privacidade
 
-A transcrição acontece localmente. Há acesso à internet apenas para baixar o
-modelo na primeira execução. Áudios, transcrições, checkpoints e modelos são
-ignorados pelo Git para reduzir o risco de publicar dados pessoais.
+A transcrição acontece localmente. Links de mídia são obtidos pela internet e
+o modelo pode ser baixado na primeira utilização. Áudios, transcrições,
+checkpoints e modelos são ignorados pelo Git para reduzir o risco de publicar
+dados pessoais.
 
 ## Desenvolvimento
 
