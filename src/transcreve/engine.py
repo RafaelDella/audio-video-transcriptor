@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import tempfile
 from collections.abc import Callable
+from concurrent.futures import CancelledError
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -50,9 +51,10 @@ def _estimated_chunk_count(source: Path, minutes: int, overlap: float) -> int | 
 
 
 class Transcriber:
-    def __init__(self, config: TranscriptionConfig) -> None:
+    def __init__(self, config: TranscriptionConfig, offline: bool = False) -> None:
         config.validate()
         self.config = config
+        self.offline = offline
         self._model = None
 
     def _load_model(self):
@@ -65,10 +67,16 @@ class Transcriber:
                 compute_type=self.config.compute_type,
                 cpu_threads=self.config.threads,
                 num_workers=1,
+                local_files_only=self.offline,
             )
         return self._model
 
-    def _transcribe_chunk(self, chunk: AudioChunk, context: str) -> list[Segment]:
+    def prepare_model(self) -> None:
+        """Load or download the model before reporting chunk processing."""
+        self._load_model()
+
+    def _transcribe_chunk(self, chunk: AudioChunk, context: str,
+                          cancel: Callable[[], bool] | None = None) -> list[Segment]:
         kwargs = {
             "language": self.config.language,
             "vad_filter": self.config.vad,
@@ -87,6 +95,8 @@ class Transcriber:
         raw_segments, _ = self._load_model().transcribe(chunk.path, **kwargs)
         result = []
         for raw in raw_segments:
+            if cancel and cancel():
+                raise CancelledError()
             if chunk.index and (raw.start + raw.end) / 2 < self.config.overlap_seconds:
                 continue
             text = raw.text.strip()
@@ -103,6 +113,7 @@ class Transcriber:
         resume: bool = True,
         keep_checkpoint: bool = False,
         progress: ProgressCallback | None = None,
+        cancel: Callable[[], bool] | None = None,
     ) -> list[Segment]:
         source = source.resolve()
         output = output.resolve()
@@ -128,6 +139,9 @@ class Transcriber:
                 self.config.overlap_seconds,
             )
             for chunk in chunks:
+                if cancel and cancel():
+                    Path(chunk.path).unlink(missing_ok=True)
+                    raise CancelledError()
                 skipped = chunk.index in state.completed
                 if progress:
                     progress(
@@ -137,14 +151,21 @@ class Transcriber:
                         )
                     )
                 try:
+                    if cancel and cancel():
+                        raise CancelledError()
                     if not skipped:
-                        segments = self._transcribe_chunk(chunk, context)
+                        segments = (self._transcribe_chunk(chunk, context, cancel)
+                                    if cancel else self._transcribe_chunk(chunk, context))
+                        if cancel and cancel():
+                            raise CancelledError()
                         state.append(chunk.index, segments)
                         recent = " ".join(segment.text for segment in segments)[-300:]
                         context = " ".join(
                             part for part in (self.config.vocabulary, recent) if part
                         )
                     completed_chunks += 1
+                    if cancel and cancel():
+                        raise CancelledError()
                     if progress:
                         progress(
                             ProgressEvent(
@@ -155,6 +176,8 @@ class Transcriber:
                 finally:
                     Path(chunk.path).unlink(missing_ok=True)
 
+        if cancel and cancel():
+            raise CancelledError()
         state.segments.sort(key=lambda segment: (segment.start, segment.end))
         write_output(output, state.segments, format_name, timestamps)
         if not keep_checkpoint:
