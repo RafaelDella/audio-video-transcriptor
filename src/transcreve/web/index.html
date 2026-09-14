@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transcreve Local</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="responsive.css">
+  <link rel="stylesheet" href="source.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="rail" aria-label="Navegação">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>transcreve<span class="brand-light"> local</span></span></div>
+      <div class="rail-label">ÁREA DE TRABALHO</div>
+      <a class="nav active" href="#workspace"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg> Nova transcrição</a>
+      <div class="rail-bottom"><span class="privacy-dot"></span> Transcrição local <small>Links são obtidos pela internet. A transcrição fica neste computador.</small></div>
+    </aside>
+    <main id="workspace">
+      <header class="topbar"><span>Área de trabalho <b>/</b> Nova transcrição</span><span class="local-badge"><span></span> Transcrição local</span></header>
+      <div class="content">
+        <div class="intro"><div><h1>Transforme áudio em texto.</h1><p>Adicione arquivos ou links de mídia, ajuste a transcrição e acompanhe cada etapa por aqui.</p></div><div class="intro-art" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+        <div class="columns">
+          <div class="primary-column">
+            <section class="panel files-panel" aria-labelledby="files-title"><div class="section-head"><div><h2 id="files-title">Fontes de mídia</h2><p id="file-subtitle">Arquivos do computador ou links de áudio e vídeo.</p></div><button id="clear-files" class="text-action hidden" type="button">Limpar lista</button></div>
+              <div id="drop-zone" class="drop-zone"><div class="upload-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></div><strong>Arraste seus arquivos para cá</strong><span>ou escolha arquivos do computador</span><button id="pick-files" class="secondary" type="button">Selecionar arquivos</button></div>
+              <div id="files-ready" class="hidden"><div id="file-list" class="file-list" role="list"></div><button id="add-files" class="add-action" type="button"><span>＋</span> Adicionar arquivos</button><div class="rename"><label for="output-name">Nome da transcrição selecionada</label><input id="output-name" type="text" autocomplete="off"><small>O nome do arquivo original não será alterado.</small></div></div>
+              <form id="link-form" class="link-form"><label for="source-url">Link de vídeo ou áudio</label><div class="link-row"><input id="source-url" type="url" inputmode="url" placeholder="Cole um link do YouTube, Vimeo ou outra mídia" autocomplete="off"><button id="add-link" class="secondary" type="submit">Adicionar link</button></div><small>Use conteúdo seu ou com permissão para baixar. A mídia é obtida ao iniciar e removida após a transcrição.</small></form>
+            </section>
+            <section class="panel settings-panel" aria-labelledby="settings-title"><div class="section-head"><div><h2 id="settings-title">Configuração</h2><p>Escolha como quer receber o resultado.</p></div></div>
+              <div class="fields"><div class="field"><label for="format">Formato de saída</label><select id="format"></select><small id="format-help"></small></div><div class="field"><label for="profile">Perfil de transcrição</label><select id="profile"></select><small id="profile-help"></small></div></div>
+              <div class="model-details" aria-live="polite"><div class="model-details-title">Modelo selecionado <strong id="selected-model">—</strong></div><p id="model-description"></p><dl><div><dt>Porte</dt><dd id="model-parameters">—</dd></div><div><dt>Espaço no disco</dt><dd id="model-disk">—</dd></div></dl></div>
+              <details class="profiles"><summary>Comparar perfis</summary><div id="profile-comparison"></div></details>
+              <div class="model-setup"><div><strong id="model-status">Verificando modelo...</strong><small id="model-help">Prepare o perfil escolhido uma vez para usá-lo sem internet.</small></div><button id="prepare-model" class="secondary" type="button">Preparar modelo</button><span id="model-saved" class="model-saved hidden"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg> Salvo localmente</span></div>
+              <label class="offline-choice"><input id="offline-mode" type="checkbox"><span>Usar somente arquivos locais e modelo salvo <small>Sem acesso à internet durante a transcrição. Links de mídia exigem conexão.</small></span></label>
+              <details id="model-info" class="profiles model-info"><summary>Entenda o uso online e offline</summary><div class="model-info-body"><p>O modelo é baixado na primeira utilização. Modelos maiores podem ser mais precisos, mas usam mais memória e levam mais tempo para carregar e processar o áudio.</p><p>Use <strong>Preparar modelo</strong> enquanto houver internet para salvar o perfil escolhido neste computador. O estado acima mostra se ele já está disponível.</p><p>Ao marcar <strong>Usar somente arquivos locais e modelo salvo</strong>, a transcrição não baixa modelos e só aceita arquivos do computador. Links do YouTube, Vimeo e outros sites precisam de internet para obter a mídia.</p><p>Salvar o modelo elimina o download inicial. O carregamento na memória e a transcrição ainda levam tempo.</p></div></details>
+              <div class="folder"><div><label>Pasta de destino</label><strong id="folder-name">Ao lado de cada arquivo</strong></div><div class="folder-actions"><button id="reset-folder" class="text-action hidden" type="button">Padrão</button><button id="pick-folder" class="secondary" type="button">Escolher pasta</button></div></div>
+              <div id="input-error" class="error hidden" role="alert"></div>
+              <div class="submit"><span id="action-hint" role="status" aria-live="polite">Selecione pelo menos um arquivo para continuar.</span><div class="submit-actions"><button id="cancel" class="cancel hidden" type="button">Cancelar transcrição</button><button id="start" class="primary" type="button" disabled>Iniciar transcrição <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14 0m-6-6 6 6-6 6"/></svg></button></div></div>
+            </section>
+          </div>
+          <section class="panel activity-panel" aria-labelledby="activity-title"><div class="section-head"><div><h2 id="activity-title">Atividade</h2><p>O andamento aparece aqui.</p></div><span id="status-pill" class="status-pill">Aguardando</span></div>
+            <div id="activity-empty" class="activity-empty"><div class="activity-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3l2-5 4 10 2-5h7"/></svg></div><strong>Tudo pronto para começar</strong><span>Adicione uma fonte e inicie a transcrição para acompanhar o download e o processamento.</span></div>
+            <div id="activity-work" class="hidden"><div class="current-caption" id="file-count">Fonte 1 de 1</div><strong id="current-file" class="current-file"></strong><p id="work-status" class="work-status">Preparando modelo e áudio...</p><div class="progress-meta"><span id="progress-label">Transcrição</span><b id="percent">0%</b></div><div class="track" id="progress-track"><div id="progress" class="fill"></div></div><div id="global-wrap" class="hidden"><div class="progress-meta"><span>Progresso total</span><b id="global-percent">0%</b></div><div class="track subtle"><div id="global-progress" class="fill"></div></div></div><div class="log-heading">Registro de atividade</div><div id="log" class="log" role="log" aria-live="polite"></div></div>
+            <div id="results" class="results hidden"><h3 id="result-title">Arquivos concluídos</h3><div id="result-list"></div></div>
+          </section>
+        </div>
+        <footer>A transcrição acontece no seu computador. Links de mídia e o primeiro uso de um modelo precisam de internet.</footer>
+      </div>
+    </main>
+  </div>
+  <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

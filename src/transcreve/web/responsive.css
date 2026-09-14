@@ -1,0 +1,12 @@
+/* Keep live progress beside the workflow when the window becomes narrow. */
+@media (max-width: 1050px) {
+  .primary-column { display: contents; }
+  .columns { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .files-panel { order: 1; }
+  .activity-panel { order: 2; }
+  .settings-panel { order: 3; }
+}
+
+@media (max-width: 700px) {
+  .activity-panel { margin-top: 0; }
+}

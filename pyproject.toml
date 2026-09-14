@@ -31,14 +31,17 @@ Issues = "https://github.com/RafaelDella/audio-video-transcriptor/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.9"]
-gui = ["PySide6>=6.7,<7"]
+gui = ["PySide6>=6.7,<7", "yt-dlp[default]>=2025.1"]
 
 [project.scripts]
 transcreve = "transcreve.cli:main"
-transcreve-gui = "transcreve.gui:main"
+transcreve-gui = "transcreve.web_gui:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+transcreve = ["web/*.html", "web/*.css", "web/*.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

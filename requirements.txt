@@ -1,2 +1,0 @@
-av>=12,<17
-faster-whisper>=1.1,<2
